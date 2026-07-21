@@ -43,6 +43,7 @@ class Trainer:
         model,
         retrieval_task,
         optimizer,
+        callbacks=None,
     ):
 
         self.model = model
@@ -55,6 +56,10 @@ class Trainer:
             "val_loss": [],
             "val_accuracy": [],
         }
+
+        self.callbacks = callbacks or []
+        self.stop_training = False
+        
 
     # =====================================================
     # Training Step
@@ -228,7 +233,13 @@ class Trainer:
         print("Training Started")
         print("=" * 60)
 
+        for cb in self.callbacks:
+            cb.on_train_begin(self)
+
         for epoch in range(epochs):
+
+            for cb in self.callbacks:
+                cb.on_epoch_begin(self, epoch)
 
             print()
             print(f"Epoch {epoch + 1}/{epochs}")
@@ -265,10 +276,36 @@ class Trainer:
                     f"Val Acc    : {val_acc:.4f}"
                 )
 
+                logs = {
+
+                    "train_loss": train_loss,
+
+                    "train_acc": train_acc,
+
+                    "val_loss": val_loss,
+
+                    "val_acc": val_acc,
+
+                }
+            
+            for cb in self.callbacks:
+                cb.on_epoch_end(
+                    self,
+                    epoch,
+                    logs,
+                )
+            
+            if self.stop_training:
+                print("\nEarly stopping.")
+                break
+
         print()
         print("=" * 60)
         print("Training Finished")
         print("=" * 60)
+
+        for cb in self.callbacks:
+            cb.on_train_end(self)
 
         return self.history
 

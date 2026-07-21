@@ -156,6 +156,18 @@ trainer = Trainer(
     model=model,
     retrieval_task=retrieval_task,
     optimizer=optimizer,
+    callbacks=[
+
+        EarlyStopping(
+            monitor="val_loss",
+            patience=3,
+        ),
+
+        ModelCheckpoint(
+            "checkpoints/best.weights.h5",
+        ),
+
+    ],
 )
 
 
