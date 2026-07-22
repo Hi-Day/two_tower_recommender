@@ -5,7 +5,6 @@ __pycache__/
 venv/
 
 logs/
-models/
 embeddings/
 
 .ipynb_checkpoints/
